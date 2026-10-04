@@ -479,3 +479,17 @@ for k, v in checks.items():
     print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 assert all(checks.values()), "NB8 incomplete — see FAIL rows above"
 print("\nNB8 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Silver chứa **1.578 bước** và partition theo hai `agent_version`; Gold tổng hợp
+# đủ cả `policy-v2` và `policy-v3`. Training run pin table version 0 cùng 1.578
+# bước, nên sau khi bảng tăng lên 1.978 bước vẫn replay đúng dữ liệu ban đầu.
+# MCP-inspired simulation chứng minh cache giảm 5 lượt `list_tables` xuống **1
+# catalog read**, thao tác phá hủy trả `input_required` trước xác nhận và task dài
+# có thể poll đến `completed`; đây chỉ là mô phỏng local, không phải MCP server hay
+# authorization boundary. Bốn bucket được phép đều tồn tại, còn **334 dòng
+# UNCLASSIFIED** bị loại khỏi tập train (còn 1.666/2.000). Xóa subject chỉ làm sạch
+# phiên bản hiện tại; version cũ và derived artifacts vẫn cần retention, VACUUM và
+# quy trình erasure riêng.

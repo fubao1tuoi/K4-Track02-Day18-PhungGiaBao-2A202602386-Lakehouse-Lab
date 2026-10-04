@@ -299,3 +299,16 @@ for k, v in checks.items():
     print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 assert all(checks.values()), "NB5 incomplete — see FAIL rows above"
 print("\nNB5 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Bảng được tạo thông qua `SqlCatalog` và partition transform là `day(ts)`; người
+# dùng lọc trực tiếp trên `ts`, không phải nhớ cột partition giả. Planner giảm từ
+# **10 file xuống 1 file**, đạt pruning **10×** so với ngưỡng 5×. Metadata tree
+# cho thấy catalog trỏ tới metadata JSON, manifest list, manifest và data file.
+# Với file demo rất nhỏ, metadata bằng **285,9%** data: đây là tác hại thứ hai của
+# small files, ngoài chi phí mở data file. Rename `latency_ms` thành
+# `latency_millis` vẫn giữ `field_id=4`, nên là thay đổi metadata-only. Hai
+# `spec_id` cùng tồn tại và toàn bộ **5.500 dòng** vẫn đọc được, chứng minh partition
+# evolution không yêu cầu rewrite dữ liệu cũ.

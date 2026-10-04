@@ -438,3 +438,17 @@ for k, v in checks.items():
     print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 assert all(checks.values()), "NB6 incomplete — see FAIL rows above"
 print("\nNB6 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Cả năm job maintenance đều đạt yêu cầu. Compaction giảm **200 → 11 file
+# (18×)**; clustering làm point query chỉ cần mở 1/10 file, tức skip **90%**.
+# Delta VACUUM thu hồi **16,1 MB** file đã có tombstone nhưng không thấy file của
+# writer bị crash vì chúng chưa từng xuất hiện trong transaction log. Phép hiệu
+# giữa file trên disk và file active tìm đúng **3 orphan** đã cài, và age guard là
+# bắt buộc để tránh xóa file của writer đang chạy. Checkpoint và
+# `_last_checkpoint` được tạo để giảm lượng JSON phải replay. Phía Iceberg,
+# snapshot expiry giảm **20 → 3 snapshot** nhưng không tự xóa file vật lý; sweep
+# tiếp theo mới loại **17 manifest list / 37,1 KB**. Vì vậy expiry và orphan
+# removal phải được vận hành như một cặp job.

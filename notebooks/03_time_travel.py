@@ -132,3 +132,14 @@ for k, v in checks.items():
     print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 assert all(checks.values()), "NB3 incomplete — see FAIL rows above"
 print("\nNB3 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# MERGE xử lý **100.000 dòng** trong lần chạy này và history ghi nhận rõ thao tác
+# MERGE. Sau khi cố ý ghi 50 dòng có `score < 0`, RESTORE tạo thêm một commit mới
+# thay vì xóa lịch sử; history vì vậy có **5 phiên bản**, gồm cả hàng RESTORE.
+# Kết quả sau khôi phục có **0 dòng lỗi**, đạt yêu cầu rollback. Time travel đọc
+# được trạng thái v0 và schema ở v1, cho thấy version là một phần của hợp đồng tái
+# lập dữ liệu; đổi lại, các phiên bản cũ chỉ còn đọc được khi file vật lý chưa bị
+# VACUUM loại bỏ.

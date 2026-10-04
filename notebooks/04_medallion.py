@@ -155,3 +155,14 @@ assert n_dates >= 7, (
 # - [ ] Silver has fewer rows than Bronze (dedup worked)
 # - [ ] Gold spans ≥ 7 dates × 3 models (slide §8 medallion contract)
 # - [ ] Cost & error_rate columns populated and non-zero
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Bronze giữ **200.000** sự kiện thô để có thể replay và audit. Silver parse,
+# chuẩn hóa và deduplicate theo `request_id`, còn **190.052** dòng, tức loại
+# **9.948** bản ghi trùng. Gold tạo **24 dòng = 8 ngày × 3 model**, vượt yêu cầu
+# tối thiểu 7 ngày và có đủ p50, p95, token, error rate, cost. Bronze ưu tiên giữ
+# nguyên sự thật đầu vào; Silver tạo dữ liệu sạch dùng chung; Gold phục vụ truy vấn
+# dashboard với grain `(date, model)`. Cost ở đây dùng bảng giá minh họa trong lab,
+# không nên diễn giải như giá niêm yết thực tế.

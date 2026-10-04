@@ -403,3 +403,16 @@ for k, v in checks.items():
     print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 assert all(checks.values()), "NB7 incomplete — see FAIL rows above"
 print("\nNB7 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Projection pushdown khiến analytical scan không phải đọc blob inline, nhưng
+# random access một frame vẫn phải đọc cả row group 12,5 MB thay vì object 64 KB,
+# tạo amplification **200×**. Quantization int8 giảm kích thước Parquet **5,8×**,
+# trong khi recall@10 đạt **0,904** và topic fidelity **1,000**, đều vượt ngưỡng;
+# chất lượng cần được đo trên corpus thật vì exact-ID recall có thể đánh giá thấp
+# các láng giềng gần tương đương. SQL semantic search trả về top-5 cùng topic
+# `storage`. Sau khi xóa `user_042`, lakehouse còn **0 hit** nhưng external index
+# cũ vẫn còn **8 hit**: vector index chỉ là derived index và phải nhận delete qua
+# CDF hoặc cơ chế đồng bộ vòng đời tương đương.

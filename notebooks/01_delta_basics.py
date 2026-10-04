@@ -110,3 +110,14 @@ for k, v in checks.items():
     print(f"  [{'PASS' if v else 'FAIL'}] {k}")
 assert all(checks.values()), "NB1 incomplete — see FAIL rows above"
 print("\nNB1 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Bảng Delta được tạo thành công và `_delta_log` có commit JSON, vì vậy dữ liệu
+# không chỉ là các file Parquet rời rạc mà còn có transaction log quản lý phiên bản.
+# Lần ghi `age="thirty"` bị chặn do không thể ép chuỗi sang `Int64`, chứng minh
+# schema enforcement hoạt động. Ngược lại, khi chủ động dùng
+# `schema_mode="merge"`, cột `tier` mới được thêm; ba bản ghi cũ nhận `NULL` và
+# bản ghi mới có giá trị `premium`. Đây là schema evolution có kiểm soát, không
+# phải tự động chấp nhận mọi thay đổi schema.

@@ -176,3 +176,14 @@ print(f"\n  (speedup={speedup:.1f}x, pruning={pruned_ratio:.1f}x — the slide a
 print("   wall-clock is noisy on a laptop, which is why file-pruning is the fallback.)")
 assert all(checks.values()), "NB2 incomplete — see FAIL rows above"
 print("\nNB2 complete.")
+
+# %% [markdown]
+# ## Phân tích kết quả thực tế
+#
+# Baseline tái hiện đúng small-file problem với **200 file**. Sau
+# OPTIMIZE + Z-ORDER, số file giảm còn **55** (khoảng 4 lần ít hơn), median query
+# giảm từ **210.0 ms** xuống **19.8 ms**, tương đương **10.6× speedup** và vượt
+# ngưỡng 3×. Min/max statistics cho thấy chỉ 1/55 file bao phủ `user_id=4242`,
+# đạt pruning ratio **55×**, cũng vượt ngưỡng 10×. Wall-clock có thể dao động theo
+# cache và máy chạy, còn pruning ratio phản ánh trực tiếp khả năng bỏ qua file;
+# do đó pruning là bằng chứng ổn định hơn cho hiệu quả bố trí dữ liệu.
